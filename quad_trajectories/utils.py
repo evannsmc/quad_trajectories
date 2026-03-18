@@ -197,6 +197,23 @@ def flat_to_x_u(
     return x_ff, u_ff
 
 
+def flat_to_x(
+    t: float,
+    flat_output: Callable[[float], jnp.ndarray],
+) -> jnp.ndarray:
+    """Compute the feedforward state only, without third-order derivatives."""
+    g = GRAVITY
+    px, py, pz, psi = flat_output(t)
+    vx, vy, vz, _ = jacfwd(flat_output)(t)
+    ax, ay, az = jacfwd(jacfwd(flat_output))(t)[:3]
+
+    f = jnp.sqrt(ax**2 + ay**2 + (az - g) ** 2)
+    th = jnp.arcsin(-ax / f)
+    phi = jnp.arctan2(ay, g - az)
+
+    return jnp.array([px, py, pz, vx, vy, vz, f, phi, th, psi])
+
+
 def generate_feedforward_trajectory(
     traj_fn: Callable[[float, TrajContext], jnp.ndarray],
     ctx: TrajContext,

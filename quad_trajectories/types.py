@@ -45,3 +45,8 @@ class TrajectoryType(StrEnum):
     SAWTOOTH = "sawtooth"
     TRIANGLE = "triangle"
     F8_CONTRACTION = "f8_contraction"
+    HOVER_CONTRACTION = "hover_contraction"
+    SPIRAL_CONTRACTION = "spiral_contraction"
+    FIGURE_EIGHT_CONTRACTION = "figure_eight_contraction"
+    TREFOIL_CONTRACTION = "trefoil_contraction"
+    FIG8_HEADING_CONTRACTION = "fig8_heading_contraction"

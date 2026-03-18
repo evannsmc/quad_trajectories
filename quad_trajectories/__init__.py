@@ -44,6 +44,7 @@ from .registry import TRAJ_REGISTRY, TrajectoryFunc
 # Individual trajectory functions (for direct import if needed)
 from .core import (
     hover,
+    hover_contraction,
     yaw_only,
     circle_horizontal,
     circle_vertical,
@@ -52,6 +53,11 @@ from .core import (
     helix,
     sawtooth,
     triangle,
+    figure_eight_contraction,
+    fig8_heading_contraction,
+    spiral_contraction,
+    trefoil_contraction,
+    f8_contraction,
     SIM_HEIGHT,
     HARDWARE_HEIGHT,
 )
@@ -64,7 +70,9 @@ from .utils import (
     generate_horizon_positions,
     generate_horizon_with_velocity,
     generate_reference_trajectory,
+    GRAVITY,
     flat_to_x_u,
+    flat_to_x,
     generate_feedforward_trajectory,
 )
 
@@ -80,6 +88,7 @@ __all__ = [
     "TRAJ_REGISTRY",
     # Trajectory functions
     "hover",
+    "hover_contraction",
     "yaw_only",
     "circle_horizontal",
     "circle_vertical",
@@ -88,9 +97,15 @@ __all__ = [
     "helix",
     "sawtooth",
     "triangle",
+    "figure_eight_contraction",
+    "fig8_heading_contraction",
+    "spiral_contraction",
+    "trefoil_contraction",
+    "f8_contraction",
     # Constants
     "SIM_HEIGHT",
     "HARDWARE_HEIGHT",
+    "GRAVITY",
     # Utilities
     "get_velocity_fn",
     "get_acceleration_fn",
@@ -99,6 +114,7 @@ __all__ = [
     "generate_horizon_with_velocity",
     "generate_reference_trajectory",
     "flat_to_x_u",
+    "flat_to_x",
     "generate_feedforward_trajectory",
     "jit",
 ]

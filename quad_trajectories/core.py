@@ -72,6 +72,34 @@ def hover(t: float, ctx: TrajContext) -> jnp.ndarray:
 
 
 @jit(static_argnames=("ctx",))
+def hover_contraction(t: float, ctx: TrajContext) -> jnp.ndarray:
+    """Returns the legacy contraction-workspace hover positions."""
+    del t
+
+    height = SIM_HEIGHT if ctx.sim else HARDWARE_HEIGHT
+    mode = ctx.hover_mode if ctx.hover_mode is not None else 1
+
+    hover_dict = {
+        1: jnp.array([0.0, 0.0, -height, 0.0]),
+        2: jnp.array([0.0, 0.8, -height, 0.0]),
+        3: jnp.array([0.8, 0.0, -height, 0.0]),
+        4: jnp.array([0.8, 0.8, -height, 0.0]),
+        5: jnp.array([0.0, 0.0, -10.0, 0.0]),
+        6: jnp.array([1.0, 1.0, -4.0, 0.0]),
+        7: jnp.array([0.0, 10.0, -5.0, 0.0]),
+        8: jnp.array([1.0, 1.0, -3.0, 0.0]),
+    }
+
+    if mode not in hover_dict:
+        raise ValueError(f"hover_dict #{mode} not found")
+
+    if not ctx.sim and mode > 4:
+        raise RuntimeError("hover modes 5+ not available for hardware")
+
+    return hover_dict[mode]
+
+
+@jit(static_argnames=("ctx",))
 def yaw_only(t: float, ctx: TrajContext) -> jnp.ndarray:
     """Returns stationary position with yawing motion.
 
@@ -339,6 +367,89 @@ def f8_contraction(t: float, ctx: TrajContext) -> jnp.ndarray:
     psi = 0.0
 
     return jnp.array([px, py, pz, psi], dtype=jnp.float32)
+
+
+@jit(static_argnames=("ctx",))
+def figure_eight_contraction(t: float, ctx: TrajContext) -> jnp.ndarray:
+    """Returns the larger legacy contraction-workspace figure-eight."""
+    height = SIM_HEIGHT if ctx.sim else HARDWARE_HEIGHT
+    radius = 5.0 if ctx.sim else 0.4
+    period = 10.0
+
+    px = radius * jnp.sin(2 * jnp.pi * t / period)
+    py = radius * jnp.sin(4 * jnp.pi * t / period) / 2.0
+    pz = -height
+    psi = 0.0
+
+    return jnp.array([px, py, pz, psi], dtype=jnp.float64)
+
+
+@jit(static_argnames=("ctx",))
+def fig8_heading_contraction(t: float, ctx: TrajContext) -> jnp.ndarray:
+    """Returns the contraction-workspace figure-eight with heading tracking."""
+    height = SIM_HEIGHT if ctx.sim else HARDWARE_HEIGHT
+    radius = 3.0 if ctx.sim else 0.4
+    period = 15.0
+    s = 2 * jnp.pi * t / period
+
+    px = radius * jnp.sin(s)
+    py = radius * jnp.sin(2 * s) / 2.0
+    pz = -height
+    psi = jnp.arctan2(jnp.cos(2 * s), jnp.cos(s))
+
+    return jnp.array([px, py, pz, psi], dtype=jnp.float64)
+
+
+@jit(static_argnames=("ctx",))
+def spiral_contraction(t: float, ctx: TrajContext) -> jnp.ndarray:
+    """Returns the legacy contraction-workspace retracing spiral."""
+    h_low = 1.5 if ctx.sim else 0.5
+    h_high = 3.0 if ctx.sim else 1.8
+    radius = 5.0 if ctx.sim else 0.5
+    cycle_time = 15.0
+    num_turns = 2.0
+
+    t_cycle = jnp.mod(t, cycle_time)
+    half_cycle = cycle_time / 2.0
+    on_ascent = t_cycle <= half_cycle
+
+    tau_up = t_cycle / half_cycle
+    tau_down = (t_cycle - half_cycle) / half_cycle
+
+    z_up = h_low + (h_high - h_low) * tau_up
+    z_down = h_high - (h_high - h_low) * tau_down
+    z_height = jnp.where(on_ascent, z_up, z_down)
+
+    theta_up = 2.0 * jnp.pi * num_turns * tau_up
+    theta_down = 2.0 * jnp.pi * num_turns * (1.0 - tau_down)
+    theta = jnp.where(on_ascent, theta_up, theta_down)
+
+    px = radius * jnp.cos(theta)
+    py = radius * jnp.sin(theta)
+    pz = -z_height
+    psi = 0.0
+
+    return jnp.array([px, py, pz, psi], dtype=jnp.float64)
+
+
+@jit(static_argnames=("ctx",))
+def trefoil_contraction(t: float, ctx: TrajContext) -> jnp.ndarray:
+    """Returns the legacy contraction-workspace trefoil trajectory."""
+    period = 15.0
+    radius = 2.0 if ctx.sim else 0.3
+    s = 2 * jnp.pi * t / period
+
+    h_low = 1.5 if ctx.sim else 0.5
+    h_high = 3.0 if ctx.sim else 1.8
+    h_mid = 0.5 * (h_low + h_high)
+    h_amp = 0.5 * (h_high - h_low)
+
+    px = radius * (jnp.sin(s) + 2 * jnp.sin(2 * s))
+    py = radius * (jnp.cos(s) - 2 * jnp.cos(2 * s))
+    pz = -(h_mid + h_amp * jnp.sin(3 * s))
+    psi = 0.0
+
+    return jnp.array([px, py, pz, psi], dtype=jnp.float64)
 
 
 @jit(static_argnames=("ctx",))
