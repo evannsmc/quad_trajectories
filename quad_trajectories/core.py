@@ -400,9 +400,11 @@ def triangle(t: float, ctx: TrajContext) -> jnp.ndarray:
 
 @jit(static_argnames=("ctx",))
 def fig8_contraction(t: float, ctx: TrajContext) -> jnp.ndarray:
-    """Returns the larger legacy contraction-workspace figure-eight."""
-    height = SIM_HEIGHT if ctx.sim else HARDWARE_HEIGHT
-    radius = 2.0 if ctx.sim else 0.4
+    """Returns the set3 contraction figure-eight."""
+    del ctx
+
+    height = 3.0
+    radius = 2.0
     period = 10.0
 
     px = radius * jnp.sin(2 * jnp.pi * t / period)
@@ -415,9 +417,11 @@ def fig8_contraction(t: float, ctx: TrajContext) -> jnp.ndarray:
 
 @jit(static_argnames=("ctx",))
 def fig8_heading_contraction(t: float, ctx: TrajContext) -> jnp.ndarray:
-    """Returns the contraction-workspace figure-eight with heading tracking."""
-    height = SIM_HEIGHT if ctx.sim else HARDWARE_HEIGHT
-    radius = 1.0 if ctx.sim else 0.4
+    """Returns the set3 contraction figure-eight with heading tracking."""
+    del ctx
+
+    height = 3.0
+    radius = 1.5
     period = 15.0
     s = 2 * jnp.pi * t / period
 
@@ -431,12 +435,14 @@ def fig8_heading_contraction(t: float, ctx: TrajContext) -> jnp.ndarray:
 
 @jit(static_argnames=("ctx",))
 def spiral_contraction(t: float, ctx: TrajContext) -> jnp.ndarray:
-    """Returns the legacy contraction-workspace retracing spiral."""
-    h_low = 1.5 if ctx.sim else 0.5
-    h_high = 3.0 if ctx.sim else 1.8
-    radius = 5.0 if ctx.sim else 0.5
-    cycle_time = 15.0
-    num_turns = 2.0
+    """Returns the set3 contraction retracing spiral."""
+    del ctx
+
+    h_low = 1.5
+    h_high = 3.0
+    radius = 1.5
+    cycle_time = 45.0
+    num_turns = 3.0
 
     t_cycle = jnp.mod(t, cycle_time)
     half_cycle = cycle_time / 2.0
@@ -463,13 +469,15 @@ def spiral_contraction(t: float, ctx: TrajContext) -> jnp.ndarray:
 
 @jit(static_argnames=("ctx",))
 def trefoil_contraction(t: float, ctx: TrajContext) -> jnp.ndarray:
-    """Returns the legacy contraction-workspace trefoil trajectory."""
+    """Returns the set3 contraction trefoil trajectory."""
+    del ctx
+
     period = 15.0
-    radius = 2.0 if ctx.sim else 0.3
+    radius = 0.6
     s = 2 * jnp.pi * t / period
 
-    h_low = 1.5 if ctx.sim else 0.5
-    h_high = 3.0 if ctx.sim else 1.8
+    h_low = 1.5
+    h_high = 3.0
     h_mid = 0.5 * (h_low + h_high)
     h_amp = 0.5 * (h_high - h_low)
 
