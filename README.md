@@ -13,7 +13,7 @@ A ROS 2 Python library of quadrotor trajectory definitions built on JAX. Traject
 | Circle (Vertical) | `circle_vert` | Circular path in the XZ plane |
 | Figure-8 (Horizontal) | `fig8_horz` | Lemniscate in the XY plane |
 | Figure-8 (Vertical) | `fig8_vert` | Lemniscate in the XZ plane (supports `--short` variant) |
-| Figure-8 (Contraction) | `f8_contraction` | Lemniscate identical to the contraction controller's `figure_eight`; supports feedforward via `flat_to_x_u` |
+| Figure-8 (Contraction) | `fig8_contraction` | Lemniscate identical to the contraction controller's `figure_eight`; supports feedforward via `flat_to_x_u` |
 | Helix | `helix` | Spiral ascending and descending |
 | Sawtooth | `sawtooth` | Waypoint-based sawtooth pattern |
 | Triangle | `triangle` | Waypoint-based triangular pattern |
@@ -39,9 +39,9 @@ pos = traj_fn(t, ctx)
 
 Derivatives are typically computed by the controller using utility functions in `quad_trajectories.utils`, which wrap `jax.jacfwd` to produce velocity, acceleration, and lookahead horizons.
 
-## Feedforward for `f8_contraction`
+## Feedforward for `fig8_contraction`
 
-The `f8_contraction` trajectory supports differential-flatness feedforward using the same approach as the contraction controller. Given a trajectory function `traj_fn(t, ctx) → [px, py, pz, psi]`, two levels of `jax.jacfwd` are applied to recover the full feedforward state and control:
+The `fig8_contraction` trajectory supports differential-flatness feedforward using the same approach as the contraction controller. Given a trajectory function `traj_fn(t, ctx) → [px, py, pz, psi]`, two levels of `jax.jacfwd` are applied to recover the full feedforward state and control:
 
 ```
 x_ff = [px, py, pz, vx, vy, vz, f, phi, th, psi]

@@ -15,11 +15,10 @@ from .core import (
     helix,
     sawtooth,
     triangle,
-    f8_contraction,
-    spiral_contraction,
-    figure_eight_contraction,
-    trefoil_contraction,
+    fig8_contraction,
     fig8_heading_contraction,
+    spiral_contraction,
+    trefoil_contraction,
 )
 
 # Type alias for trajectory functions
@@ -28,6 +27,7 @@ TrajectoryFunc = Callable[[float, TrajContext], jnp.ndarray]
 # Registry maps trajectory types to their position-only functions
 TRAJ_REGISTRY: Dict[TrajectoryType, TrajectoryFunc] = {
     TrajectoryType.HOVER: hover,
+    TrajectoryType.HOVER_CONTRACTION: hover_contraction,
     TrajectoryType.YAW_ONLY: yaw_only,
     TrajectoryType.CIRCLE_HORIZONTAL: circle_horizontal,
     TrajectoryType.CIRCLE_VERTICAL: circle_vertical,
@@ -36,10 +36,8 @@ TRAJ_REGISTRY: Dict[TrajectoryType, TrajectoryFunc] = {
     TrajectoryType.HELIX: helix,
     TrajectoryType.SAWTOOTH: sawtooth,
     TrajectoryType.TRIANGLE: triangle,
-    TrajectoryType.F8_CONTRACTION: f8_contraction,
-    TrajectoryType.HOVER_CONTRACTION: hover_contraction,
-    TrajectoryType.SPIRAL_CONTRACTION: spiral_contraction,
-    TrajectoryType.FIGURE_EIGHT_CONTRACTION: figure_eight_contraction,
-    TrajectoryType.TREFOIL_CONTRACTION: trefoil_contraction,
+    TrajectoryType.FIG8_CONTRACTION: fig8_contraction,
     TrajectoryType.FIG8_HEADING_CONTRACTION: fig8_heading_contraction,
+    TrajectoryType.SPIRAL_CONTRACTION: spiral_contraction,
+    TrajectoryType.TREFOIL_CONTRACTION: trefoil_contraction,
 }

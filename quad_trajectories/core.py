@@ -347,8 +347,8 @@ def sawtooth(t: float, ctx: TrajContext) -> jnp.ndarray:
 
 
 @jit(static_argnames=("ctx",))
-def f8_contraction(t: float, ctx: TrajContext) -> jnp.ndarray:
-    """Returns a figure-8 (Lissajous 1:2) trajectory position.
+def triangle(t: float, ctx: TrajContext) -> jnp.ndarray:
+    """Returns equilateral triangle trajectory position (waypoint-based).
 
     Args:
         t: Time in seconds
@@ -357,20 +357,49 @@ def f8_contraction(t: float, ctx: TrajContext) -> jnp.ndarray:
     Returns:
         Position array [x, y, z, yaw]
     """
-    height = SIM_HEIGHT if ctx.sim else HARDWARE_HEIGHT
-    R = 2.0 if ctx.sim else 0.5
-    T = 10.0
+    height = HARDWARE_HEIGHT if not ctx.sim else SIM_HEIGHT
+    side_length = 0.8
+    flight_time = 60.0
+    num_repeats = 2 if ctx.double_speed else 1
+    period_spin = 20.0
 
-    px = R * jnp.sin(2 * jnp.pi * t / T)
-    py = R * jnp.sin(4 * jnp.pi * t / T) / 2
-    pz = -height
-    psi = 0.0
+    omega_spin = 2 * jnp.pi / period_spin if ctx.spin else 0.0
 
-    return jnp.array([px, py, pz, psi], dtype=jnp.float32)
+    # Triangle vertices
+    h = jnp.sqrt(side_length**2 - (side_length/2)**2)
+    points = jnp.array([
+        [0.0, h/2],
+        [side_length/2, -h/2],
+        [-side_length/2, -h/2]
+    ], dtype=jnp.float64)
 
+    # Calculate segment time
+    T_seg = flight_time / (3 * num_repeats)
+
+    # Calculate time within current cycle
+    cycle_time = t % (3 * T_seg)
+
+    # Determine segment index
+    segment_idx = jnp.floor(cycle_time / T_seg)
+    segment_idx = jnp.clip(segment_idx, 0, 2).astype(int)
+
+    # Time within the current segment
+    local_time = cycle_time - segment_idx * T_seg
+
+    # Linear interpolation
+    start_point = points[segment_idx]
+    end_point = points[(segment_idx + 1) % 3]
+
+    alpha = local_time / T_seg
+    x = start_point[0] + (end_point[0] - start_point[0]) * alpha
+    y = start_point[1] + (end_point[1] - start_point[1]) * alpha
+    z = -height
+    yaw = omega_spin * t
+
+    return jnp.array([x, y, z, yaw], dtype=jnp.float64)
 
 @jit(static_argnames=("ctx",))
-def figure_eight_contraction(t: float, ctx: TrajContext) -> jnp.ndarray:
+def fig8_contraction(t: float, ctx: TrajContext) -> jnp.ndarray:
     """Returns the larger legacy contraction-workspace figure-eight."""
     height = SIM_HEIGHT if ctx.sim else HARDWARE_HEIGHT
     radius = 5.0 if ctx.sim else 0.4
@@ -450,56 +479,3 @@ def trefoil_contraction(t: float, ctx: TrajContext) -> jnp.ndarray:
     psi = 0.0
 
     return jnp.array([px, py, pz, psi], dtype=jnp.float64)
-
-
-@jit(static_argnames=("ctx",))
-def triangle(t: float, ctx: TrajContext) -> jnp.ndarray:
-    """Returns equilateral triangle trajectory position (waypoint-based).
-
-    Args:
-        t: Time in seconds
-        ctx: Trajectory context
-
-    Returns:
-        Position array [x, y, z, yaw]
-    """
-    height = HARDWARE_HEIGHT if not ctx.sim else SIM_HEIGHT
-    side_length = 0.8
-    flight_time = 60.0
-    num_repeats = 2 if ctx.double_speed else 1
-    period_spin = 20.0
-
-    omega_spin = 2 * jnp.pi / period_spin if ctx.spin else 0.0
-
-    # Triangle vertices
-    h = jnp.sqrt(side_length**2 - (side_length/2)**2)
-    points = jnp.array([
-        [0.0, h/2],
-        [side_length/2, -h/2],
-        [-side_length/2, -h/2]
-    ], dtype=jnp.float64)
-
-    # Calculate segment time
-    T_seg = flight_time / (3 * num_repeats)
-
-    # Calculate time within current cycle
-    cycle_time = t % (3 * T_seg)
-
-    # Determine segment index
-    segment_idx = jnp.floor(cycle_time / T_seg)
-    segment_idx = jnp.clip(segment_idx, 0, 2).astype(int)
-
-    # Time within the current segment
-    local_time = cycle_time - segment_idx * T_seg
-
-    # Linear interpolation
-    start_point = points[segment_idx]
-    end_point = points[(segment_idx + 1) % 3]
-
-    alpha = local_time / T_seg
-    x = start_point[0] + (end_point[0] - start_point[0]) * alpha
-    y = start_point[1] + (end_point[1] - start_point[1]) * alpha
-    z = -height
-    yaw = omega_spin * t
-
-    return jnp.array([x, y, z, yaw], dtype=jnp.float64)
