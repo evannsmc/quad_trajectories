@@ -405,7 +405,7 @@ def fig8_contraction(t: float, ctx: TrajContext) -> jnp.ndarray:
 
     height = 3.0
     radius = 2.0
-    period = 10.0
+    period = 15.0
 
     px = radius * jnp.sin(2 * jnp.pi * t / period)
     py = radius * jnp.sin(4 * jnp.pi * t / period) / 2.0
@@ -422,7 +422,7 @@ def fig8_heading_contraction(t: float, ctx: TrajContext) -> jnp.ndarray:
 
     height = 3.0
     radius = 1.5
-    period = 15.0
+    period = 20.0
     s = 2 * jnp.pi * t / period
 
     px = radius * jnp.sin(s)
@@ -441,7 +441,7 @@ def spiral_contraction(t: float, ctx: TrajContext) -> jnp.ndarray:
     h_low = 1.5
     h_high = 3.0
     radius = 1.5
-    cycle_time = 45.0
+    cycle_time = 55.0
     num_turns = 3.0
 
     t_cycle = jnp.mod(t, cycle_time)
@@ -472,7 +472,7 @@ def trefoil_contraction(t: float, ctx: TrajContext) -> jnp.ndarray:
     """Returns the set3 contraction trefoil trajectory."""
     del ctx
 
-    period = 15.0
+    period = 25.0
     radius = 0.6
     s = 2 * jnp.pi * t / period
 
