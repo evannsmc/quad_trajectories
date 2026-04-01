@@ -12,7 +12,7 @@ from jax import jacfwd, vmap
 from .types import TrajContext
 from .jax_utils import jit
 
-GRAVITY: float = 9.81
+GRAVITY: float = 9.8  # Match Gazebo world (Tools/simulation/gz/worlds/default.sdf)
 
 
 def get_velocity_fn(
