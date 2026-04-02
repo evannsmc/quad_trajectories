@@ -444,20 +444,13 @@ def spiral_contraction(t: float, ctx: TrajContext) -> jnp.ndarray:
     cycle_time = 55.0
     num_turns = 3.0
 
-    t_cycle = jnp.mod(t, cycle_time)
-    half_cycle = cycle_time / 2.0
-    on_ascent = t_cycle <= half_cycle
+    # Use a smooth 0 -> 1 -> 0 progress law so the retrace happens with zero
+    # velocity at the turnaround instead of a discontinuous branch flip.
+    phase = 2.0 * jnp.pi * jnp.mod(t, cycle_time) / cycle_time
+    progress = 0.5 * (1.0 - jnp.cos(phase))
 
-    tau_up = t_cycle / half_cycle
-    tau_down = (t_cycle - half_cycle) / half_cycle
-
-    z_up = h_low + (h_high - h_low) * tau_up
-    z_down = h_high - (h_high - h_low) * tau_down
-    z_height = jnp.where(on_ascent, z_up, z_down)
-
-    theta_up = 2.0 * jnp.pi * num_turns * tau_up
-    theta_down = 2.0 * jnp.pi * num_turns * (1.0 - tau_down)
-    theta = jnp.where(on_ascent, theta_up, theta_down)
+    z_height = h_low + (h_high - h_low) * progress
+    theta = 2.0 * jnp.pi * num_turns * progress
 
     px = radius * jnp.cos(theta)
     py = radius * jnp.sin(theta)
