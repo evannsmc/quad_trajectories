@@ -93,7 +93,7 @@ quad_trajectories/
 
 ```bash
 # Inside a ROS 2 workspace src/ directory
-git clone git@github.com:evannsm/quad_trajectories.git
+git clone git@github.com:evannsmc/quad_trajectories.git
 cd .. && colcon build --symlink-install
 ```
 

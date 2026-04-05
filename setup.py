@@ -17,5 +17,4 @@ setup(
     maintainer_email='user@example.com',
     description='Standalone trajectory definitions for quadrotor control',
     license='MIT',
-    tests_require=['pytest'],
 )
