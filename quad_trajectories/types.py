@@ -45,7 +45,7 @@ class TrajectoryType(StrEnum):
     HELIX = "helix"
     SAWTOOTH = "sawtooth"
     TRIANGLE = "triangle"
-    FIG8_CONTRACTION = "fig8_contraction"
+    FIG8_AKASH = "fig8_akash"
     FIG8_HEADING_CONTRACTION = "fig8_heading_contraction"
     SPIRAL_CONTRACTION = "spiral_contraction"
     TREFOIL_CONTRACTION = "trefoil_contraction"

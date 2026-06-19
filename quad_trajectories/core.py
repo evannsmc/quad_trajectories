@@ -399,8 +399,8 @@ def triangle(t: float, ctx: TrajContext) -> jnp.ndarray:
     return jnp.array([x, y, z, yaw], dtype=jnp.float64)
 
 @jit(static_argnames=("ctx",))
-def fig8_contraction(t: float, ctx: TrajContext) -> jnp.ndarray:
-    """Returns the set3 contraction figure-eight."""
+def fig8_akash(t: float, ctx: TrajContext) -> jnp.ndarray:
+    """Returns the Akash figure-eight (formerly fig8_contraction; the set3 contraction figure-eight)."""
     del ctx
 
     height = 3.0
