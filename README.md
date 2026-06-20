@@ -16,7 +16,7 @@ Trajectories return position-level outputs `[x, y, z, yaw]` — all higher-order
 - [Available Trajectories](#available-trajectories)
 - [Key Features](#key-features)
 - [Usage](#usage)
-- [Feedforward for `fig8_akash`](#feedforward-for-fig8_akash)
+- [Feedforward for `fig8_contraction`](#feedforward-for-fig8_contraction)
 - [Package Structure](#package-structure)
 - [Installation](#installation)
 - [Used by](#used-by)
@@ -34,7 +34,7 @@ Trajectories return position-level outputs `[x, y, z, yaw]` — all higher-order
 | Circle (Vertical) | `circle_vert` | Circular path in the XZ plane |
 | Figure-8 (Horizontal) | `fig8_horz` | Lemniscate in the XY plane |
 | Figure-8 (Vertical) | `fig8_vert` | Lemniscate in the XZ plane (supports `--short` variant) |
-| Figure-8 (Contraction) | `fig8_akash` | Lemniscate identical to the contraction controller's `figure_eight`; supports feedforward via `flat_to_x_u` |
+| Figure-8 (Contraction) | `fig8_contraction` | Lemniscate trajectory written for my [contraction controller](https://github.com/evannsmc/contraction_controller_px4); supports differential-flatness feedforward via `flat_to_x_u` |
 | Helix | `helix` | Spiral ascending and descending |
 | Sawtooth | `sawtooth` | Waypoint-based sawtooth pattern |
 | Triangle | `triangle` | Waypoint-based triangular pattern |
@@ -60,9 +60,9 @@ pos = traj_fn(t, ctx)
 
 Derivatives are typically computed by the controller using utility functions in `quad_trajectories.utils`, which wrap `jax.jacfwd` to produce velocity, acceleration, and lookahead horizons.
 
-## Feedforward for `fig8_akash`
+## Feedforward for `fig8_contraction`
 
-The `fig8_akash` trajectory supports differential-flatness feedforward using the same approach as the contraction controller. Given a trajectory function `traj_fn(t, ctx) → [px, py, pz, psi]`, two levels of `jax.jacfwd` are applied to recover the full feedforward state and control:
+The `fig8_contraction` trajectory supports differential-flatness feedforward — it was written for my [contraction controller](https://github.com/evannsmc/contraction_controller_px4). Given a trajectory function `traj_fn(t, ctx) → [px, py, pz, psi]`, two levels of `jax.jacfwd` are applied to recover the full feedforward state and control:
 
 ```
 x_ff = [px, py, pz, vx, vy, vz, f, phi, th, psi]
@@ -80,7 +80,7 @@ where `f` is specific thrust (m/s²), `phi`/`th`/`psi` are roll/pitch/yaw, and `
 from quad_trajectories import flat_to_x_u, TRAJ_REGISTRY, TrajContext, TrajectoryType
 
 ctx = TrajContext(sim=True, ...)
-flat_output = lambda t: TRAJ_REGISTRY[TrajectoryType.FIG8_AKASH](t, ctx)
+flat_output = lambda t: TRAJ_REGISTRY[TrajectoryType.FIG8_CONTRACTION](t, ctx)
 x_ff, u_ff = flat_to_x_u(t, flat_output)
 # u_ff[1:4] = [roll_rate, pitch_rate, yaw_rate] — add to NR output rates
 ```
@@ -92,7 +92,7 @@ from quad_trajectories import generate_feedforward_trajectory, TRAJ_REGISTRY, Tr
 
 ctx = TrajContext(sim=True, ...)
 x_ff_traj, u_ff_traj = generate_feedforward_trajectory(
-    TRAJ_REGISTRY[TrajectoryType.FIG8_AKASH], ctx,
+    TRAJ_REGISTRY[TrajectoryType.FIG8_CONTRACTION], ctx,
     t_start, horizon, num_steps)
 # x_ff_traj[:, 7:10] = [phi, th, psi] per step  → use as euler_ref in NMPC
 # u_ff_traj           = [df, dphi, dth, dpsi]    → use as u_ref in NMPC
